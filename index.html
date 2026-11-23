@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://umeiddjtiirjtcxzurkw.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gita admin</title>
+<meta name="robots" content="noindex">
+<!-- Empty here: the local server answers without a password. The public build (admin/build_public.ts) fills it in. -->
+<meta name="admin-api" content="https://umeiddjtiirjtcxzurkw.supabase.co/functions/v1/admin-data">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --page: #FFF7E6; --card: #FFFFFF; --ink: #2A1F7A; --soft: #6B6396; --line: #ECE4F2; --wash: #F7F3FB;
+  --hears: #E08A00; --thinks: #4B3BC4; --speaks: #E0246F; --haldi: #FFC93C; --tip: #2A1F7A; --tip-ink: #FFF7E6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #221A5C; --card: #2C2370; --ink: #FFF7E6; --soft: #C9C2EE; --line: #43388F; --wash: #352B7E;
+    --hears: #C98500; --thinks: #8577F2; --speaks: #E8458B; --tip: #FFF7E6; --tip-ink: #2A1F7A;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 400 15px/1.45 Inter, system-ui, sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 64px; }
+h1, h2 { font-family: Fraunces, Georgia, serif; font-weight: 600; margin: 0; line-height: 1.15; }
+h1 { font-size: 34px; } h2 { font-size: 22px; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--speaks); outline-offset: 2px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.seg { display: inline-flex; background: var(--wash); border-radius: 999px; padding: 3px; }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 6px 14px; color: var(--soft); cursor: pointer; white-space: nowrap; }
+.seg button[aria-pressed=true] { background: var(--card); color: var(--ink); font-weight: 600; }
+.card { background: var(--card); border-radius: 22px; padding: 28px; margin-top: 24px; }
+.page-seg { background: var(--card); } .page-seg button[aria-pressed=true] { background: var(--haldi); color: #2A1F7A; }
+
+.money { display: grid; grid-template-columns: 190px 1fr; gap: 40px; align-items: stretch; }
+.lock { max-width: 340px; margin: 18vh auto 0; padding: 0 24px; display: grid; gap: 12px; }
+.lock h1 { margin-bottom: 8px; } .lock label { font-weight: 600; } .lock p { margin: 0; min-height: 22px; color: var(--soft); }
+.lock input { font: inherit; color: inherit; background: var(--card); border: 1.5px solid var(--soft); border-radius: 12px; padding: 11px 14px; width: 100%; }
+.lock button { border: 0; border-radius: 999px; background: var(--haldi); color: #2A1F7A; font-weight: 600; padding: 12px; cursor: pointer; }
+.lock button:disabled { opacity: .6; cursor: default; }
+
+.hero { font-size: 52px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.hero-label { color: var(--soft); margin-top: 8px; }
+.facts { display: grid; gap: 10px; margin: 28px 0 0; }
+.facts div { display: flex; justify-content: space-between; gap: 12px; }
+.facts dt { color: var(--soft); } .facts dd { margin: 0; font-weight: 600; }
+.plot { position: relative; min-height: 230px; }
+.plot svg { display: block; width: 100%; height: 230px; overflow: visible; }
+.plot text { fill: var(--soft); font-size: 12px; font-variant-numeric: tabular-nums; }
+.col { fill: var(--thinks); } .hit:hover + .col, .hit:focus + .col { fill: var(--speaks); }
+.hit { fill: transparent; outline: none; }
+.off { display: grid; place-content: center; text-align: center; gap: 8px; min-height: 230px; border-radius: 16px; background: var(--wash); padding: 24px; }
+.off p { margin: 0; color: var(--soft); } .off strong { font-weight: 600; }
+.badge { background: var(--haldi); color: #2A1F7A; border-radius: 999px; padding: 4px 12px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+
+.grid { display: grid; grid-template-columns: 196px repeat(3, minmax(0, 1fr)) 236px; align-items: center; }
+.grid.two { grid-template-columns: 196px repeat(2, minmax(0, 1fr)) 236px; }
+.head { color: var(--soft); font-size: 13px; padding: 22px 0 8px; }
+.head span { display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.row { display: contents; }
+.row > * { min-height: 62px; display: flex; align-items: center; border-top: 1px solid var(--line); }
+.who { gap: 12px; } .who svg { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.who b { font-weight: 600; display: block; line-height: 1.25; } .who small { color: var(--soft); font-size: 13px; }
+.stage { position: relative; padding-right: 16px; }
+.stage.next::after { content: ''; position: absolute; right: 0; width: 16px; height: 2px; background: var(--soft); opacity: .45; top: calc(50% - 1px); }
+.chip { position: relative; width: 100%; border-radius: 12px; border: 1.5px solid var(--tone); background: var(--card); padding: 7px 12px; font-size: 14px; font-weight: 500; line-height: 1.25; }
+select.chip { appearance: none; cursor: pointer; padding-right: 26px; text-overflow: ellipsis;
+  background-image: linear-gradient(45deg, transparent 50%, var(--soft) 50%), linear-gradient(-45deg, transparent 50%, var(--soft) 50%);
+  background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+select.chip.changed { background-color: var(--haldi); color: #2A1F7A; }
+select.chip option { color: #2A1F7A; background: #fff; }
+.cost { gap: 12px; }
+.stack { flex: 1; height: 16px; display: flex; gap: 2px; }
+.stack i { display: block; height: 100%; min-width: 2px; } .stack i:last-child { border-radius: 0 4px 4px 0; }
+.price { width: 96px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.price small { display: block; color: var(--soft); font-weight: 400; font-size: 12px; }
+.link { border: 0; background: none; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--soft); }
+.tools { display: flex; gap: 12px 18px; align-items: center; flex-wrap: wrap; }
+.note { color: var(--soft); font-size: 13px; margin: 18px 0 0; }
+#tip { position: fixed; pointer-events: none; background: var(--tip); color: var(--tip-ink); border-radius: 12px; padding: 10px 14px; font-size: 13px; line-height: 1.5; opacity: 0; z-index: 9; max-width: 250px; }
+#tip b { display: block; font-size: 16px; font-weight: 600; }
+
+@media (max-width: 860px) {
+  .stage.next::after { display: none; } .stage { padding-right: 0; }
+  main { padding: 28px 16px 48px; } .card { padding: 20px; }
+  .money { grid-template-columns: 1fr; gap: 24px; }
+  .grid, .grid.two { display: block; margin-top: 16px; } .head { display: none; }
+  .row { display: block; border-top: 1px solid var(--line); padding: 14px 0; }
+  .row > * { border: 0; min-height: 0; margin-top: 8px; } .row > .blank { display: none; }
+}
+</style>
+</head>
+<body>
+<form class="lock" id="lock" hidden>
+  <h1>Gita admin</h1>
+  <label for="password">Password</label>
+  <input id="password" name="password" type="password" autocomplete="current-password" required>
+  <p id="lock-error" role="alert"></p>
+  <button type="submit">Open</button>
+</form>
+<main id="page" hidden>
+  <div class="bar">
+    <h1 id="title"></h1>
+    <div class="tools"><span id="badge"></span><button class="link" id="lock-again" hidden>Lock</button><div class="seg page-seg" id="range" role="group" aria-label="Days shown"></div></div>
+  </div>
+  <section class="card" id="money" aria-label="Spend"></section>
+  <section class="card" aria-labelledby="where">
+    <div class="bar">
+      <h2 id="where"></h2>
+      <div class="tools"><button class="link" id="reset" hidden>Reset</button><div class="seg" id="cache" role="group" aria-label="Cached Gita"></div></div>
+    </div>
+    <div class="grid" id="live"></div>
+    <p class="note" id="note"></p>
+  </section>
+  <section class="card" aria-labelledby="made-h">
+    <h2 id="made-h"></h2>
+    <div class="grid two" id="made"></div>
+  </section>
+</main>
+<div id="tip" role="status"></div>
+<script>
+const $ = (id) => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+function h(tag, props = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'style') el.style.cssText = v;
+    else if (v !== undefined && v !== false) el.setAttribute(k, v === true ? '' : v);
+  }
+  el.append(...kids.filter((k) => k !== null && k !== undefined));
+  return el;
+}
+function s(tag, props = {}, ...kids) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(props)) k.startsWith('on') ? el.addEventListener(k.slice(2), v) : el.setAttribute(k, v);
+  el.append(...kids);
+  return el;
+}
+const ICONS = {
+  phone: 'M6 3h3l2 5-2.5 1.500a11 11 0 0 0 6 6L16 13l5 2v3a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z',
+  mic: 'M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21',
+  chat: 'M4 5h16v11H11l-5 4v-4H4z',
+  speaker: 'M4 10v4h4l5 4V6L8 10zM16.500 9a4 4 0 0 1 0 6M19 6.500a8 8 0 0 1 0 11',
+  note: 'M6 3h12v18H6zM9 8h6M9 12h6M9 16h3',
+  book: 'M12 6c-2-1.500-5-2-8-2v14c3 0 6 .5 8 2 2-1.500 5-2 8-2V4c-3 0-6 .5-8 2zM12 6v14',
+  tag: 'M4 4h8l8 8-8 8-8-8zM8 8h.01',
+  lotus: 'M12 4c3 3.500 3 10 0 14-3-4-3-10.500 0-14zM4 9c5 0 8 4 8 9-5 0-8-4-8-9zM20 9c-5 0-8 4-8 9 5 0 8-4 8-9z',
+  pen: 'M4 20l1-5L16 4l4 4L9 19zM14 6l4 4',
+};
+const icon = (n) => s('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' }, s('path', { d: ICONS[n] }));
+const usd = (n) => (n >= 100 ? '$' + Math.round(n).toLocaleString('en-US') : '$' + n.toFixed(2));
+/** Cents for single uses, dollars once it passes one. */
+const cents = (n) => (n >= 1 ? usd(n) : (n * 100 >= 10 ? Math.round(n * 100) : (n * 100).toFixed(1)) + '¢');
+const niceDay = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+const state = { range: 30, cold: false, picks: {} };
+let data;
+
+function seg(el, options, get, set) {
+  el.replaceChildren(...options.map(([value, label]) =>
+    h('button', { type: 'button', 'aria-pressed': String(get() === value), onclick: () => { set(value); render(); } }, label)));
+}
+
+const tip = $('tip');
+function showTip(e, value, lines) {
+  tip.replaceChildren(h('b', {}, value), ...lines.map((l) => h('div', {}, l)));
+  // A chart column's tooltip sits on its bar, not at the top of the plot.
+  const bar = e.currentTarget.nextElementSibling;
+  const r = (e.currentTarget.classList.contains('hit') && bar?.getAttribute('d') ? bar : e.currentTarget).getBoundingClientRect();
+  tip.style.opacity = 1;
+  const w = tip.offsetWidth, left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+  tip.style.left = left + 'px';
+  tip.style.top = Math.max(8, r.top - tip.offsetHeight - 8) + 'px';
+}
+const hideTip = () => { tip.style.opacity = 0; };
+const tipped = (value, lines) => ({ onpointerenter: (e) => showTip(e, value, lines), onpointerleave: hideTip, onfocus: (e) => showTip(e, value, lines), onblur: hideTip });
+
+function renderMoney() {
+  const { state: mode, days, message } = data.spend;
+  $('badge').replaceChildren(...(mode === 'sample' ? [h('span', { class: 'badge' }, 'Sample data')] : []));
+  $('range').hidden = !days.length;
+  if (!days.length) {
+    $('money').replaceChildren(h('div', { class: 'off' },
+      h('strong', {}, mode === 'error' ? 'Couldn’t read spend' : 'Spend isn’t connected'),
+      h('p', {}, mode === 'error' ? message : 'Fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local, then restart.')));
+    return;
+  }
+  const shown = days.slice(-state.range);
+  const sum = (k) => shown.reduce((n, d) => n + d[k], 0);
+  const total = sum('usd'), turns = sum('turns');
+  const fact = (k, v) => h('div', {}, h('dt', {}, k), h('dd', {}, v));
+  $('money').replaceChildren(h('div', { class: 'money' },
+    h('div', {},
+      h('div', { class: 'hero' }, usd(total)),
+      h('div', { class: 'hero-label' }, `last ${state.range} days`),
+      h('dl', { class: 'facts' },
+        fact('Today', usd(days.at(-1).usd)),
+        fact('Turns', turns.toLocaleString('en-US')),
+        fact('Per turn', turns ? cents(total / turns) : '–'),
+        fact('Voice', sum('voiceMinutes').toLocaleString('en-US') + ' min'))),
+    h('div', { class: 'plot', id: 'plot' })));
+  $('plot').append(plot(shown, $('plot').clientWidth));
+}
+
+function plot(days, W) {
+  const H = 230, L = 44, B = 26, T = 8;
+  const max = Math.max(...days.map((d) => d.usd));
+  const raw = (max || 1) / 3, mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((x) => x >= raw);
+  const top = step * Math.max(1, Math.ceil((max || 1) / step)), y = (v) => T + (H - T - B) * (1 - v / top);
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Spend per day for ${days.length} days` });
+  for (let v = 0; v <= top + step / 2; v += step) {
+    svg.append(s('line', { x1: L, x2: W, y1: y(v), y2: y(v), stroke: 'var(--line)' }),
+      s('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end' }, '$' + (step < 1 ? v.toFixed(2) : v)));
+  }
+  const band = (W - L) / days.length, w = Math.min(24, Math.max(2, band - 2));
+  days.forEach((d, i) => {
+    const x = L + i * band + (band - w) / 2, hgt = y(0) - y(d.usd), r = Math.min(4, w / 2, hgt);
+    svg.append(s('rect', { class: 'hit', x: L + i * band, y: T, width: band, height: H - T - B, tabindex: 0, 'aria-label': `${niceDay(d.day)} ${usd(d.usd)}`,
+      ...tipped(usd(d.usd), [niceDay(d.day), `${d.turns} turns, ${d.voiceMinutes} voice min`, `${d.people} people`]) }));
+    svg.append(s('path', { class: 'col', 'pointer-events': 'none', d: hgt > 0 ? `M${x} ${y(0)}V${y(d.usd) + r}q0 ${-r} ${r} ${-r}h${w - 2 * r}q${r} 0 ${r} ${r}V${y(0)}z` : '' }));
+  });
+  const every = Math.max(1, Math.round(days.length / (W < 500 ? 3 : 5)));
+  days.forEach((d, i) => { if (i % every === 0 && i < days.length - every / 2) svg.append(s('text', { x: L + i * band + band / 2, y: H - 6, 'text-anchor': i ? 'middle' : 'start' }, niceDay(d.day))); });
+  if (days.length > 7) svg.append(s('text', { x: W, y: H - 6, 'text-anchor': 'end' }, niceDay(days.at(-1).day)));
+  return svg;
+}
+
+const find = (list, id) => list.find((x) => x.id === id);
+/** What each stage of one use costs, with the picked models (or the app's own). */
+function costs(use, picks) {
+  const out = {};
+  if (use.hears) out.hears = use.hears.minutes * find(data.listeners, picks.hears ?? use.hears.id).usdPerMinute;
+  if (use.thinks) {
+    const p = find(data.models, picks.thinks ?? use.thinks.id).price, t = use.thinks;
+    out.thinks = (t.cached * (state.cold ? p.cacheWrite : p.cacheRead) + t.fresh * p.in + t.out * p.out) / 1e6;
+  }
+  if (use.speaks) out.speaks = use.speaks.minutes * find(data.speakers, picks.speaks ?? use.speaks.id).usdPerMinute;
+  return out;
+}
+const STAGES = [['hears', 'Hears', 'listeners'], ['thinks', 'Thinks', 'models'], ['speaks', 'Speaks', 'speakers']];
+const total = (c) => Object.values(c).reduce((a, b) => a + b, 0);
+const header = (last, stages = STAGES) => [h('div', { class: 'head' }), ...stages.map(([k, label]) =>
+  h('div', { class: 'head' }, h('span', {}, h('i', { class: 'dot', style: `background:var(--${k})` }), label))), h('div', { class: 'head' }, last)];
+const who = (u) => h('div', { class: 'who' }, icon(u.icon), h('div', {}, h('b', {}, u.name), h('small', {}, u.unit)));
+const blank = () => h('div', { class: 'stage blank' });
+/** A stage joined by a line to the one after it, when the use has both. */
+const join = (u, key) => 'stage' + ((key === 'hears' && u.thinks) || (key === 'thinks' && u.speaks) ? ' next' : '');
+
+function chip(use, key, list) {
+  const own = use[key].id, picked = state.picks[use.id]?.[key] ?? own;
+  const item = find(data[list], picked);
+  // Flux streams a live call; the others transcribe a finished recording, so they aren't swapped for each other.
+  const options = key === 'hears' ? data.listeners.filter((l) => (l.id === 'flux') === (own === 'flux')) : data[list];
+  const effort = key === 'thinks' && picked.startsWith(own.split(':')[0]) ? `${use.thinks.effort} effort` : null;
+  const rate = item.price ? `$${item.price.in} in, $${item.price.out} out per million tokens` : `$${item.usdPerMinute} a minute`;
+  const lines = [rate, effort, item.note].filter(Boolean);
+  if (options.length < 2) return h('div', { class: join(use, key), style: `--tone:var(--${key})` }, h('div', { class: 'chip', tabindex: 0, ...tipped(item.label, lines) }, item.label));
+  return h('div', { class: join(use, key), style: `--tone:var(--${key})` },
+    h('select', { class: 'chip' + (picked !== own ? ' changed' : ''), id: `${use.id}-${key}`, 'aria-label': `${use.name} ${key}`, ...tipped(item.label, lines),
+      onchange: (e) => {
+        const p = state.picks[use.id] ??= {};
+        e.target.value === own ? delete p[key] : p[key] = e.target.value;
+        const id = e.target.id;
+        hideTip(); render(); $(id).focus();
+      } },
+      ...options.map((o) => h('option', { value: o.id, selected: o.id === picked }, o.label))));
+}
+
+function renderLive() {
+  const rows = data.live.map((u) => {
+    const c = costs(u, state.picks[u.id] ?? {}), was = total(costs(u, {}));
+    return { u, c, now: total(c), was };
+  });
+  const max = Math.max(...rows.map((r) => Math.max(r.now, r.was)));
+  $('live').replaceChildren(...header('One use'), ...rows.map(({ u, c, now, was }) => {
+    const changed = Math.abs(now - was) > 1e-9;
+    const parts = STAGES.filter(([k]) => c[k]).map(([k, label]) => [k, label, c[k]]);
+    return h('div', { class: 'row' }, who(u),
+      ...STAGES.map(([k, , list]) => (u[k] ? chip(u, k, list) : blank())),
+      h('div', { class: 'cost' },
+        h('div', { class: 'stack', tabindex: 0, 'aria-label': `${u.name} ${cents(now)}`, ...tipped(cents(now), parts.map(([, l, v]) => `${l} ${cents(v)}`)) },
+          ...parts.map(([k, , v]) => h('i', { style: `background:var(--${k});width:${(v / max) * 100}%` }))),
+        h('div', { class: 'price' }, cents(now), changed ? h('small', {}, 'now ' + cents(was)) : null)));
+  }));
+  $('reset').hidden = !Object.values(state.picks).some((p) => Object.keys(p).length);
+}
+
+function renderMade() {
+  const max = Math.max(...data.made.map((m) => m.usd));
+  const plain = (m, k) => (m[k] ? h('div', { class: join(m, k), style: `--tone:var(--${k})` }, h('div', { class: 'chip' }, m[k])) : blank());
+  $('made').replaceChildren(...header('Total', STAGES.slice(1)), ...data.made.map((m) => h('div', { class: 'row' }, who(m),
+    plain(m, 'thinks'), plain(m, 'speaks'),
+    h('div', { class: 'cost' }, h('div', { class: 'stack' }, h('i', { style: `background:var(--soft);width:${(m.usd / max) * 100}%` })), h('div', { class: 'price' }, cents(m.usd))))));
+}
+
+function render() {
+  seg($('range'), [[7, '7 days'], [30, '30 days'], [90, '90 days']], () => state.range, (v) => { state.range = v; });
+  seg($('cache'), [[false, 'Warm'], [true, 'Cold start']], () => state.cold, (v) => { state.cold = v; });
+  renderMoney(); renderLive(); renderMade();
+}
+let width = innerWidth;
+addEventListener('resize', () => { if (data && innerWidth !== width) { width = innerWidth; renderMoney(); } });
+$('reset').addEventListener('click', () => { state.picks = {}; render(); });
+const API = document.querySelector('meta[name="admin-api"]').content;
+const PASSWORD = 'gita-admin';
+const remember = (v) => { try { v === null ? sessionStorage.removeItem(PASSWORD) : sessionStorage.setItem(PASSWORD, v); } catch { /* storage is off: ask again next time */ } };
+const remembered = () => { try { return sessionStorage.getItem(PASSWORD); } catch { return null; } };
+function show(d) {
+  data = d;
+  $('lock').hidden = true;
+  $('page').hidden = false;
+  $('lock-again').hidden = !API;
+  $('title').textContent = 'What Gita costs';
+  $('where').textContent = 'Where AI is used';
+  $('made-h').textContent = 'Made ahead of time';
+  $('note').textContent = 'Estimates for one use. Pick another model to compare; it doesn’t change the app.';
+  render();
+}
+function lock(message = '') {
+  $('page').hidden = true;
+  $('lock').hidden = false;
+  $('lock-error').textContent = message;
+  $('password').focus();
+}
+async function unlock(password) {
+  const button = $('lock').querySelector('button');
+  button.disabled = true;
+  try {
+    const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+    const body = await res.json().catch(() => ({}));
+    if (res.status === 401) remember(null);
+    if (!res.ok) return lock(body.error ?? 'The server didn’t answer. Try again in a minute.');
+    remember(password);
+    $('password').value = '';
+    show(body);
+  } catch {
+    lock('Couldn’t reach the server. Check your connection and try again.');
+  } finally {
+    button.disabled = false;
+  }
+}
+$('lock').addEventListener('submit', (e) => { e.preventDefault(); unlock($('password').value.trim()); });
+$('lock-again').addEventListener('click', () => { remember(null); location.reload(); });
+if (API) {
+  remembered() ? unlock(remembered()) : lock();
+} else {
+  fetch('/api').then((r) => r.json()).then(show).catch(() => {
+    $('page').hidden = false;
+    $('money').replaceChildren(h('div', { class: 'off' }, h('strong', {}, 'The admin server isn’t running'), h('p', {}, 'Run deno task admin, then reload.')));
+  });
+}
+</script>
+</body>
+</html>
